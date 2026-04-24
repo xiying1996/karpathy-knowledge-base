@@ -1,14 +1,16 @@
-from pathlib import Path
+from pydantic import Field
 from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    OLLAMA_BASE_URL: str = "http://localhost:11434"
-    CHROMA_HOST: str = "localhost:8000"
-    CHROMA_PORT: int = 8000
-    DATA_DIR: Path = Path(__file__).parent.parent.parent / "vault"
-    VAULT_PATH: Path = Path(__file__).parent.parent.parent / "vault"
-    LOG_LEVEL: str = "INFO"
+    OLLAMA_BASE_URL: str = Field(default="http://localhost:11434")
+    CHROMA_HOST: str = Field(default="localhost:8000")
+    CHROMA_PORT: int = Field(default=8000)
+    DATA_DIR: str = Field(default="./vault")
+    VAULT_PATH: str = Field(default="./vault")
+    LOG_LEVEL: str = Field(default="INFO")
+    API_KEY: str | None = Field(default=None)
+    BACKEND_CORS_ORIGINS: str = Field(default="http://localhost:3000,http://127.0.0.1:3000")
 
     class Config:
         env_file = ".env"

@@ -2,7 +2,7 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     ports:
       - "8000:8000"
     volumes:
@@ -13,6 +13,7 @@ services:
       - CHROMA_PORT=8000
       - DATA_DIR=/app/vault
       - VAULT_PATH=/app/vault
+      - PYTHONUNBUFFERED=1
     depends_on:
       - chromadb
     networks:
