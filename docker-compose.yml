@@ -1,0 +1,43 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./vault:/app/vault
+    environment:
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - CHROMA_HOST=chromadb:8000
+      - CHROMA_PORT=8000
+      - DATA_DIR=/app/vault
+      - VAULT_PATH=/app/vault
+    depends_on:
+      - chromadb
+    networks:
+      - kb-network
+
+  chromadb:
+    image: chromadb/chroma:latest
+    ports:
+      - "8001:8000"
+    networks:
+      - kb-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000
+    depends_on:
+      - backend
+    networks:
+      - kb-network
+
+networks:
+  kb-network:
+    driver: bridge
