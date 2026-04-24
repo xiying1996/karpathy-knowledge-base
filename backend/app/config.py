@@ -6,6 +6,8 @@ class Settings(BaseSettings):
     OLLAMA_BASE_URL: str = Field(default="http://localhost:11434")
     CHROMA_HOST: str = Field(default="localhost:8000")
     CHROMA_PORT: int = Field(default=8000)
+    EMBEDDING_MODEL: str = Field(default="nomic-embed-text")
+    EMBEDDING_DIM: int = Field(default=768)
     DATA_DIR: str = Field(default="./vault")
     VAULT_PATH: str = Field(default="./vault")
     LOG_LEVEL: str = Field(default="INFO")
