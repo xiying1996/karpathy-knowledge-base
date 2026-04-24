@@ -1,10 +1,5 @@
 import axios from 'axios'
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '',
-  timeout: 30000,
-})
-
 export interface Note {
   id: string
   title: string
@@ -22,6 +17,20 @@ export interface SearchResult {
   snippet: string
   score: number
 }
+
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL || '',
+  timeout: 30000,
+})
+
+api.interceptors.response.use(
+  response => response,
+  error => {
+    const message = error.response?.data?.detail || error.message || '请求失败'
+    console.error('API Error:', message)
+    return Promise.reject(error)
+  }
+)
 
 export const getNotes = () => api.get<{ notes: Note[]; total: number }>('/api/notes')
 

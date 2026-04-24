@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { BookOpen } from 'lucide-react'
+import { BookOpen, FileText, Tag } from 'lucide-react'
 import { getNotes } from '../services/api'
 
 interface Note {
   id: string
   title: string
   path: string
+  tags?: string[]
 }
 
 function Home() {
@@ -23,9 +24,34 @@ function Home() {
     return <div className="text-center py-12 text-gray-500">加载中...</div>
   }
 
+  const totalTags = new Set(notes.flatMap(n => n.tags || [])).size
+
   return (
     <div>
       <h2 className="text-2xl font-bold mb-6">我的笔记</h2>
+      <div className="grid gap-4 md:grid-cols-3 mb-8">
+        <div className="bg-white p-4 rounded-lg shadow flex items-center">
+          <FileText className="w-8 h-8 text-blue-600 mr-3" />
+          <div>
+            <p className="text-2xl font-bold">{notes.length}</p>
+            <p className="text-sm text-gray-500">笔记总数</p>
+          </div>
+        </div>
+        <div className="bg-white p-4 rounded-lg shadow flex items-center">
+          <BookOpen className="w-8 h-8 text-green-600 mr-3" />
+          <div>
+            <p className="text-2xl font-bold">{notes.filter(n => n.path.includes('demo')).length}</p>
+            <p className="text-sm text-gray-500">演示笔记</p>
+          </div>
+        </div>
+        <div className="bg-white p-4 rounded-lg shadow flex items-center">
+          <Tag className="w-8 h-8 text-purple-600 mr-3" />
+          <div>
+            <p className="text-2xl font-bold">{totalTags}</p>
+            <p className="text-sm text-gray-500">标签总数</p>
+          </div>
+        </div>
+      </div>
       {notes.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-lg shadow">
           <BookOpen className="w-12 h-12 mx-auto text-gray-400 mb-4" />

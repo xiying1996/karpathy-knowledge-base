@@ -1,23 +1,30 @@
 import { useState } from 'react'
-import { Search } from 'lucide-react'
+import { Search, AlertCircle } from 'lucide-react'
 import { searchNotes } from '../services/api'
+import type { SearchResult } from '../services/api'
 
 function SearchPage() {
   const [query, setQuery] = useState('')
-  const [results, setResults] = useState<any[]>([])
+  const [results, setResults] = useState<SearchResult[]>([])
   const [searching, setSearching] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [hasSearched, setHasSearched] = useState(false)
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!query.trim()) return
     setSearching(true)
+    setError(null)
     try {
       const res = await searchNotes(query)
       setResults(res.data.results)
+      setHasSearched(true)
     } catch (err) {
-      console.error(err)
+      setError('搜索失败，请稍后重试')
+      setResults([])
+    } finally {
+      setSearching(false)
     }
-    setSearching(false)
   }
 
   return (
@@ -42,6 +49,12 @@ function SearchPage() {
           </button>
         </div>
       </form>
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center text-red-700">
+          <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
+          {error}
+        </div>
+      )}
       {results.length > 0 ? (
         <div className="space-y-4">
           {results.map(result => (
@@ -51,6 +64,8 @@ function SearchPage() {
             </div>
           ))}
         </div>
+      ) : hasSearched ? (
+        <p className="text-gray-500 text-center py-8">未找到相关结果</p>
       ) : (
         <p className="text-gray-500 text-center py-8">输入问题开始搜索</p>
       )}
