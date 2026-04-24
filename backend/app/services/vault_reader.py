@@ -4,9 +4,13 @@ from typing import Any
 
 import frontmatter
 
+from app.config import settings
+
 
 class VaultReader:
-    _NOTE_ID_PATTERN = re.compile(r"^[a-zA-Z0-9_\-]+$")
+    # 支持中文、日文、拉丁字母、数字、下划线、连字符
+    _NOTE_ID_PATTERN = re.compile(r"^[a-zA-Z0-9_\-\u4e00-\u9fff]+$")
+
     def __init__(self, vault_path: str):
         self.vault_path = Path(vault_path)
 
@@ -72,3 +76,11 @@ class VaultReader:
                     continue
                 return self.read_note(md_file)
         return None
+
+
+# ─── FastAPI 依赖注入 ─────────────────────────────────────────────────────────
+
+
+def get_vault_reader() -> VaultReader:
+    """FastAPI 依赖：返回 VaultReader 实例（生产环境用 settings.VAULT_PATH）"""
+    return VaultReader(settings.VAULT_PATH)

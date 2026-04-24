@@ -42,3 +42,15 @@ class AskRequest(BaseModel):
 class AskResponse(BaseModel):
     answer: str
     sources: list[str] = []
+
+
+class BacklinkItem(BaseModel):
+    """引用了某笔记的来源笔记信息"""
+    id: str
+    title: str
+    snippet: str = ""
+
+
+class NoteWithBacklinks(Note):
+    """笔记详情（含反向链接）"""
+    backlinks: list[BacklinkItem] = []

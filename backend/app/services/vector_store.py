@@ -1,11 +1,17 @@
-import chromadb
-from chromadb import HttpClient
-
 from app.config import settings
+
+try:
+    import chromadb
+    from chromadb import HttpClient
+    CHROMA_AVAILABLE = True
+except ImportError:
+    CHROMA_AVAILABLE = False
 
 
 class VectorStore:
     def __init__(self):
+        if not CHROMA_AVAILABLE:
+            raise RuntimeError("chromadb is not installed. Install it with: pip install chromadb")
         self._client = None
         self._collection = None
 

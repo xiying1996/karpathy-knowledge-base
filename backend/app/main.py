@@ -8,27 +8,38 @@ from app.config import settings
 from app.routers import health, notes, search, rag
 from app.middleware.auth import APIKeyAuthMiddleware
 from app.services.indexer import Indexer
+from app.services.backlinks import BacklinksService
 from app.services.file_watcher import FileWatcher
 
 
 _file_watcher: FileWatcher | None = None
 _indexer: Indexer | None = None
+_backlinks: BacklinksService | None = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global _file_watcher, _indexer
+    global _file_watcher, _indexer, _backlinks
     if settings.FILE_WATCHER_ENABLED:
         _indexer = Indexer()
+        _backlinks = BacklinksService()
+
+        def combined_on_change(event_type: str, file_path: str):
+            # ChromaDB 索引更新
+            _indexer.on_file_change(event_type, file_path)
+            # Backlinks 倒排索引更新
+            _backlinks.on_file_change(event_type, file_path)
+
         _file_watcher = FileWatcher(
             vault_path=settings.VAULT_PATH,
             mode=settings.FILE_WATCHER_MODE,
             poll_interval=settings.FILE_WATCHER_POLL_INTERVAL,
             debounce=settings.FILE_WATCHER_DEBOUNCE,
-            on_change=_indexer.on_file_change,
+            on_change=combined_on_change,
         )
-        # Initial full vault indexing
+        # 启动时全量重建
         _indexer.upsert_all_notes()
+        _backlinks.rebuild_full_index()
         _file_watcher.start()
         atexit.register(_file_watcher.stop)
     yield
