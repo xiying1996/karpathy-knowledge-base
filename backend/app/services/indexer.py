@@ -1,5 +1,4 @@
 import logging
-import os
 import sys
 from pathlib import Path
 
@@ -10,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 try:
     import chromadb
-    from chromadb.config import Settings as ChromaSettings
+    from chromadb import HttpClient
     CHROMA_AVAILABLE = True
 except ImportError:
     CHROMA_AVAILABLE = False
@@ -24,13 +23,9 @@ def get_chroma_client():
     if not CHROMA_AVAILABLE:
         return None
     if _chroma_client is None:
-        _chroma_client = chromadb.Client(
-            ChromaSettings(
-                chroma_api_impl="rest",
-                chroma_server_host=settings.CHROMA_HOST.split(":")[0] if ":" in settings.CHROMA_HOST else settings.CHROMA_HOST,
-                chroma_server_http_port=settings.CHROMA_PORT,
-            )
-        )
+        host = settings.CHROMA_HOST.split(":")[0] if ":" in settings.CHROMA_HOST else settings.CHROMA_HOST
+        port = settings.CHROMA_PORT
+        _chroma_client = HttpClient(host=host, port=port)
     return _chroma_client
 
 
@@ -46,7 +41,7 @@ def _chunk_text(text: str, chunk_size: int = 500, overlap: int = 50) -> list[str
         if current_len + line_len > chunk_size and current:
             chunks.append("\n".join(current))
             current = current[-2:] if len(current) > 2 else current
-            current_len = sum(len(l) for l in current)
+            current_len = sum(len(line) for line in current)
         current.append(line)
         current_len += line_len
     if current:
@@ -69,9 +64,9 @@ class Indexer:
             return None
         if self._collection is None:
             try:
-                self._collection = client.get_or_create_collection("knowledge_base")
+                self._collection = client.get_or_create_collection("notes")
             except Exception:
-                self._collection = client.create_collection("knowledge_base")
+                self._collection = client.create_collection("notes")
         return self._collection
 
     def upsert_note(self, note_id: str, title: str, content: str, path: str):

@@ -1,9 +1,12 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Send, MessageCircle } from 'lucide-react'
+import { ragAsk } from '../services/api'
 
 interface Message {
   role: 'user' | 'assistant'
   content: string
+  sources?: string[]
 }
 
 function Chat() {
@@ -21,14 +24,12 @@ function Chat() {
     setLoading(true)
 
     try {
-      const res = await fetch('/api/rag/ask', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: input }),
-      })
-      if (res.status === 501) {
-        setMessages(prev => [...prev, { role: 'assistant', content: 'RAG 功能正在开发中...' }])
-      }
+      const res = await ragAsk(input)
+      const data = res.data
+      setMessages(prev => [
+        ...prev,
+        { role: 'assistant', content: data.answer, sources: data.sources },
+      ])
     } catch (err) {
       setMessages(prev => [...prev, { role: 'assistant', content: '抱歉，发生错误' }])
     }
@@ -52,9 +53,36 @@ function Chat() {
                   msg.role === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-900'
                 }`}>
                   {msg.content}
+                {msg.sources && msg.sources.length > 0 && (
+                  <div className="mt-2 pt-2 border-t border-gray-200">
+                    <p className="text-xs text-gray-400 mb-1">来源：</p>
+                    <div className="flex flex-wrap gap-1">
+                      {msg.sources.map(src => (
+                        <Link
+                          key={src}
+                          to={`/notes/${src}`}
+                          className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded hover:bg-blue-100"
+                        >
+                          {src}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 </div>
               </div>
             ))
+          )}
+          {loading && (
+            <div className="flex justify-start">
+              <div className="bg-gray-100 px-4 py-2 rounded-lg">
+                <div className="flex gap-1">
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
+              </div>
+            </div>
           )}
         </div>
         <form onSubmit={handleSend} className="border-t p-4 flex gap-2">

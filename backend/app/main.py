@@ -1,4 +1,3 @@
-import os
 import atexit
 from contextlib import asynccontextmanager
 
@@ -7,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.routers import health, notes, search, rag
+from app.middleware.auth import APIKeyAuthMiddleware
 from app.services.indexer import Indexer
 from app.services.file_watcher import FileWatcher
 
@@ -27,6 +27,8 @@ async def lifespan(app: FastAPI):
             debounce=settings.FILE_WATCHER_DEBOUNCE,
             on_change=_indexer.on_file_change,
         )
+        # Initial full vault indexing
+        _indexer.upsert_all_notes()
         _file_watcher.start()
         atexit.register(_file_watcher.stop)
     yield
@@ -51,6 +53,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(APIKeyAuthMiddleware)
 
 app.include_router(health.router, prefix="/api", tags=["health"])
 app.include_router(notes.router, prefix="/api", tags=["notes"])

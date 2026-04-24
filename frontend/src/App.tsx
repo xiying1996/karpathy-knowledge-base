@@ -3,6 +3,7 @@ import { BookOpen, Search, MessageCircle } from 'lucide-react'
 import Home from './pages/Home'
 import SearchPage from './pages/Search'
 import Chat from './pages/Chat'
+import NoteDetail from './pages/NoteDetail'
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/chat" element={<Chat />} />
+            <Route path="/notes/:id" element={<NoteDetail />} />
           </Routes>
         </main>
       </div>

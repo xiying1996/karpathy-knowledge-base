@@ -1,5 +1,5 @@
 import chromadb
-from chromadb.config import Settings as ChromaSettings
+from chromadb import HttpClient
 
 from app.config import settings
 
@@ -12,19 +12,15 @@ class VectorStore:
     @property
     def client(self):
         if self._client is None:
-            self._client = chromadb.Client(
-                ChromaSettings(
-                    chroma_api_impl="rest",
-                    chroma_server_host=settings.CHROMA_HOST,
-                    chroma_server_http_port=settings.CHROMA_PORT,
-                )
-            )
+            host = settings.CHROMA_HOST.split(":")[0] if ":" in settings.CHROMA_HOST else settings.CHROMA_HOST
+            port = settings.CHROMA_PORT
+            self._client = HttpClient(host=host, port=port)
         return self._client
 
     @property
     def collection(self):
         if self._collection is None:
-            self._collection = self.client.get_collection("notes")
+            self._collection = self.client.get_or_create_collection("notes")
         return self._collection
 
     def query(

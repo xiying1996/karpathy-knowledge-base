@@ -1,7 +1,6 @@
 import time
 from pathlib import Path
 from unittest.mock import MagicMock
-import pytest
 
 from app.services.file_watcher import FileWatcher, DebouncedHandler
 

@@ -5,3 +5,4 @@ os.environ["VAULT_PATH"] = os.path.join(
     "..",
     "vault",
 )
+os.environ["FILE_WATCHER_ENABLED"] = "false"

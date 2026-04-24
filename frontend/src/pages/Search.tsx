@@ -1,7 +1,16 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Search, AlertCircle } from 'lucide-react'
 import { searchNotes } from '../services/api'
 import type { SearchResult } from '../services/api'
+
+function highlightMatch(text: string, query: string): React.ReactNode {
+  if (!query.trim()) return text
+  const parts = text.split(new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'))
+  return parts.map((part, i) =>
+    part.toLowerCase() === query.toLowerCase() ? <mark key={i} className="bg-yellow-200">{part}</mark> : part
+  )
+}
 
 function SearchPage() {
   const [query, setQuery] = useState('')
@@ -58,10 +67,11 @@ function SearchPage() {
       {results.length > 0 ? (
         <div className="space-y-4">
           {results.map(result => (
-            <div key={result.id} className="bg-white p-4 rounded-lg shadow">
-              <h3 className="font-semibold">{result.title}</h3>
-              <p className="text-gray-600 mt-2 text-sm">{result.snippet}</p>
-            </div>
+            <Link key={result.id} to={`/notes/${result.id}`} className="bg-white p-4 rounded-lg shadow hover:shadow-md transition block">
+              <h3 className="font-semibold text-gray-900">{result.title}</h3>
+              <p className="text-gray-600 mt-2 text-sm">{highlightMatch(result.snippet, query)}</p>
+              <p className="text-xs text-gray-400 mt-2">相关度 {Math.round(result.score * 100)}%</p>
+            </Link>
           ))}
         </div>
       ) : hasSearched ? (
