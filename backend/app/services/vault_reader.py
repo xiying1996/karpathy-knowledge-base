@@ -6,6 +6,7 @@ import frontmatter
 
 
 class VaultReader:
+    _NOTE_ID_PATTERN = re.compile(r"^[a-zA-Z0-9_\-]+$")
     def __init__(self, vault_path: str):
         self.vault_path = Path(vault_path)
 
@@ -62,7 +63,12 @@ class VaultReader:
         return sorted(notes, key=lambda n: n.get("created") or "", reverse=True)
 
     def get_note_by_id(self, note_id: str) -> dict[str, Any] | None:
+        if not self._NOTE_ID_PATTERN.match(note_id):
+            return None
         for md_file in self.vault_path.rglob("*.md"):
             if md_file.is_file() and md_file.stem == note_id:
+                resolved = md_file.resolve()
+                if not resolved.is_relative_to(self.vault_path.resolve()):
+                    continue
                 return self.read_note(md_file)
         return None
