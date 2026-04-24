@@ -1,18 +1,48 @@
+import os
+import atexit
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-import os
+from app.config import settings
 from app.routers import health, notes, search, rag
+from app.services.indexer import Indexer
+from app.services.file_watcher import FileWatcher
 
-origins_str = os.environ.get("BACKEND_CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000")
-origins = [o.strip() for o in origins_str.split(",")]
+
+_file_watcher: FileWatcher | None = None
+_indexer: Indexer | None = None
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global _file_watcher, _indexer
+    if settings.FILE_WATCHER_ENABLED:
+        _indexer = Indexer()
+        _file_watcher = FileWatcher(
+            vault_path=settings.VAULT_PATH,
+            mode=settings.FILE_WATCHER_MODE,
+            poll_interval=settings.FILE_WATCHER_POLL_INTERVAL,
+            debounce=settings.FILE_WATCHER_DEBOUNCE,
+            on_change=_indexer.on_file_change,
+        )
+        _file_watcher.start()
+        atexit.register(_file_watcher.stop)
+    yield
+    if _file_watcher:
+        _file_watcher.stop()
 
 
 app = FastAPI(
     title="Karpathy Knowledge Base API",
     description="Obsidian + AI 驱动的个人知识库后端 API",
     version="0.1.0",
+    lifespan=lifespan,
 )
+
+origins_str = settings.BACKEND_CORS_ORIGINS
+origins = [o.strip() for o in origins_str.split(",")]
 
 app.add_middleware(
     CORSMiddleware,
