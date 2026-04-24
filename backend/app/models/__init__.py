@@ -42,3 +42,17 @@ class AskRequest(BaseModel):
 class AskResponse(BaseModel):
     answer: str
     sources: list[str] = []
+
+
+class VaultFile(BaseModel):
+    id: str
+    path: str
+    title: str
+    tags: list[str] = []
+    modified: str | None = None
+    excerpt: str = ""
+
+
+class VaultListResponse(BaseModel):
+    files: list[VaultFile]
+    total: int
