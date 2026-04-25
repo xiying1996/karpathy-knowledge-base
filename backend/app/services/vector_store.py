@@ -1,7 +1,6 @@
 from app.config import settings
 
 try:
-    import chromadb
     from chromadb import HttpClient
     CHROMA_AVAILABLE = True
 except ImportError:

@@ -1,8 +1,9 @@
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
-import { BookOpen, Search, MessageCircle } from 'lucide-react'
+import { BookOpen, Search, MessageCircle, Calendar } from 'lucide-react'
 import Home from './pages/Home'
 import SearchPage from './pages/Search'
 import Chat from './pages/Chat'
+import Daily from './pages/Daily'
 import NoteDetail from './pages/NoteDetail'
 
 function App() {
@@ -26,6 +27,10 @@ function App() {
                   <MessageCircle className="w-4 h-4 mr-1" />
                   AI 问答
                 </Link>
+                <Link to="/daily" className="flex items-center text-gray-600 hover:text-gray-900">
+                  <Calendar className="w-4 h-4 mr-1" />
+                  每日笔记
+                </Link>
               </div>
             </div>
           </div>
@@ -35,6 +40,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/chat" element={<Chat />} />
+            <Route path="/daily" element={<Daily />} />
             <Route path="/notes/:id" element={<NoteDetail />} />
           </Routes>
         </main>

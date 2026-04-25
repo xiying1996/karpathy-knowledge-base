@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import health, notes, search, rag
+from app.routers import daily, health, notes, search, rag
 from app.middleware.auth import APIKeyAuthMiddleware
 from app.services.indexer import Indexer
 from app.services.backlinks import BacklinksService
@@ -70,6 +70,7 @@ app.include_router(health.router, prefix="/api", tags=["health"])
 app.include_router(notes.router, prefix="/api", tags=["notes"])
 app.include_router(search.router, prefix="/api", tags=["search"])
 app.include_router(rag.router, prefix="/api", tags=["rag"])
+app.include_router(daily.router, prefix="/api", tags=["daily"])
 
 
 @app.get("/")

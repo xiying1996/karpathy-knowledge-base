@@ -8,7 +8,6 @@ from app.services.vault_reader import VaultReader
 logger = logging.getLogger(__name__)
 
 try:
-    import chromadb
     from chromadb import HttpClient
     CHROMA_AVAILABLE = True
 except ImportError:

@@ -33,5 +33,13 @@ class Settings(BaseSettings):
     FILE_WATCHER_POLL_INTERVAL: int = Field(default=2)
     FILE_WATCHER_DEBOUNCE: int = Field(default=2)
 
+    # Daily Note 配置
+    DAILY_NOTE_ENABLED: bool = Field(default=True)
+    DAILY_NOTE_AUTO_CREATE: bool = Field(default=False)
+    DAILY_NOTE_AUTO_CREATE_TIME: str = Field(default="00:01")
+    DAILY_NOTE_PATH_FORMAT: str = Field(default="daily/{date}.md")
+    DAILY_NOTE_TEMPLATE_PATH: str = Field(default="templates/daily.md")
+    DAILY_NOTE_AI_SUGGESTION: bool = Field(default=False)
+
 
 settings = Settings()

@@ -23,23 +23,19 @@ def client(vault_with_notes, kkb_dir):
     """
     test_vault = str(vault_with_notes)
 
-    # 创建指向测试 vault 的 VaultReader
     test_vault_reader = VaultReader(test_vault)
-    # 创建并预填充 BacklinksService
     test_backlinks = BacklinksService(
         vault_path=test_vault,
         index_path=kkb_dir / "backlinks.json",
     )
     test_backlinks.rebuild_full_index()
 
-    # 注入测试依赖
     app.dependency_overrides[get_vault_reader] = lambda: test_vault_reader
     app.dependency_overrides[get_backlinks] = lambda: test_backlinks
 
     with TestClient(app, raise_server_exceptions=False) as c:
         yield c
 
-    # 清理 override
     app.dependency_overrides.clear()
 
 

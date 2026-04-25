@@ -1,4 +1,5 @@
 import logging
+import secrets
 from fastapi import Request, HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 
@@ -20,7 +21,7 @@ class APIKeyAuthMiddleware(BaseHTTPMiddleware):
             logger.warning(f"Missing API key for {request.client.host}")
             raise HTTPException(status_code=401, detail="Missing API key")
 
-        if api_key != settings.API_KEY:
+        if not secrets.compare_digest(api_key, settings.API_KEY):
             logger.warning(f"Invalid API key for {request.client.host}")
             raise HTTPException(status_code=401, detail="Invalid API key")
 

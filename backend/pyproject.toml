@@ -17,6 +17,7 @@ dependencies = [
     "aiofiles>=23.2.1",
     "python-frontmatter>=1.1.0",
     "watchdog>=3.0.0",
+    "httpx>=0.26.0",
 ]
 
 [project.optional-dependencies]

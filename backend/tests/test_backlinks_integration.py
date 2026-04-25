@@ -7,7 +7,6 @@
 import time
 from pathlib import Path
 
-import pytest
 
 from app.services.backlinks import BacklinksService
 from app.services.file_watcher import FileWatcher
